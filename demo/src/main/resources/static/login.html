@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+        <form id="loginForm">
+            <input type="email" name="email" placeholder="Email" class="w-full mb-4 p-2 border rounded" required>
+            <input type="password" name="password" placeholder="Password" class="w-full mb-4 p-2 border rounded" required>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Login</button>
+        </form>
+        <div class="flex justify-between mt-4">
+            <a href="register.html" id="showRegister" class="text-blue-500">Create Account</a>
+            <a href="forgot.html" id="showForgot" class="text-blue-500">Forgot Password?</a>
+        </div>
+        <div id="message" class="mt-4 text-center text-red-500"></div>
+    </div>
+    <script>
+        // AJAX login
+        document.getElementById('loginForm').onsubmit = async function(e) {
+            e.preventDefault();
+            const email = this.email.value;
+            const password = this.password.value;
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email, password})
+            });
+            const msg = await res.text();
+            document.getElementById('message').textContent = msg;
+            if (msg === 'Login successful') {
+                window.location.href = '/homepage.html';
+            }
+        };
+        // Show register/forgot forms (to be implemented)
+    </script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <nav class="bg-blue-600 text-white px-6 py-4 flex justify-between items-center">
+        <div class="font-bold text-xl">NewsAPP</div>
+        <div>
+            <button id="loadNewsApi" class="mr-4 bg-blue-500 px-2 py-1 rounded">NewsAPI</button>
+            <button id="loadGnews" class="mr-4 bg-yellow-500 px-2 py-1 rounded">GNewsAPI</button>
+            <a href="login.html" id="logout">Logout</a>
+        </div>
+    </nav>
+    <div class="flex h-screen">
+        <aside class="w-64 bg-white p-6 border-r">
+            <h3 class="font-semibold mb-4">Articles</h3>
+            <ul id="articlesList" class="space-y-2">
+                <!-- Articles will be loaded here -->
+            </ul>
+        </aside>
+        <main class="flex-1 p-8">
+            <div id="articleContent" class="bg-white p-6 rounded shadow-md">
+                <h2 class="text-2xl font-bold mb-4">Select an article</h2>
+                <div id="articleBody"></div>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Highlight active button
+        function setActiveButton(api) {
+            document.getElementById('loadNewsApi').classList.remove('bg-blue-700');
+            document.getElementById('loadGnews').classList.remove('bg-yellow-700');
+            if (api === 'newsapi') document.getElementById('loadNewsApi').classList.add('bg-blue-700');
+            else if (api === 'gnews') document.getElementById('loadGnews').classList.add('bg-yellow-700');
+        }
+        async function loadArticles(api) {
+            setActiveButton(api);
+            // Reset main article display
+            document.getElementById('articleContent').innerHTML = `
+                <h2 class="text-2xl font-bold mb-4">Select an article</h2>
+                <div id="articleBody"></div>
+            `;
+            let endpoint;
+            if (api === 'gnews') endpoint = '/api/gnews';
+            else endpoint = '/api/news';
+            const res = await fetch(endpoint);
+            const data = await res.json();
+            let articles;
+            if (api === 'gnews') articles = data.articles || data;
+            else articles = data.articles || [];
+            const list = document.getElementById('articlesList');
+            list.innerHTML = '';
+            articles.forEach((article, idx) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="#" class="text-blue-600" data-id="${idx}">NEWS ${idx + 1}</a>`;
+                li.querySelector('a').onclick = () => loadArticle(article, api);
+                list.appendChild(li);
+            });
+        }
+        async function loadArticle(article, api) {
+            if (api === 'gnews') {
+                document.getElementById('articleContent').innerHTML = `
+                    <h2 class="text-2xl font-bold mb-4">${article.title}</h2>
+                    <div id="articleBody">
+                        <p><strong>Description & Content:</strong> ${(article.description || '') + '<br><br>' + (article.content || '')}</p>
+                        ${article.publishedAt ? `<p><strong>Published At:</strong> ${article.publishedAt}</p>` : ''}
+                        ${article.image ? `<img src='${article.image}' alt='News Image' class='my-4 rounded' style='max-width:100%;'/>` : ''}
+                        <p><strong>URL:</strong> <a href='${article.url}' target='_blank' class='text-blue-500'>${article.url}</a></p>
+                    </div>
+                `;
+            } else {
+                document.getElementById('articleContent').innerHTML = `
+                    <h2 class="text-2xl font-bold mb-4">${article.title}</h2>
+                    <div id="articleBody">
+                        <p><strong>Author:</strong> ${article.author || 'Unknown'}</p>
+                        <p><strong>Source:</strong> ${article.source && article.source.name ? article.source.name : 'Unknown'}</p>
+                        <p><strong>Description & Content:</strong> ${(article.description || '') + '<br><br>' + (article.content || '')}</p>
+                        ${article.publishedAt ? `<p><strong>Published At:</strong> ${article.publishedAt}</p>` : ''}
+                        ${article.urlToImage ? `<img src='${article.urlToImage}' alt='News Image' class='my-4 rounded' style='max-width:100%;'/>` : ''}
+                        <p><strong>URL:</strong> <a href='${article.url}' target='_blank' class='text-blue-500'>${article.url}</a></p>
+                    </div>
+                `;
+            }
+        }
+        document.getElementById('loadNewsApi').onclick = () => loadArticles('newsapi');
+        document.getElementById('loadGnews').onclick = () => loadArticles('gnews');
+        // Load PH NewsAPI by default on page load
+        window.onload = () => loadArticles('newsapi');
+    </script>
+</body>
+</html>
