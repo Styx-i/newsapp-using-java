@@ -60,6 +60,10 @@
                 li.querySelector('a').onclick = () => loadArticle(article, api);
                 list.appendChild(li);
             });
+            // Automatically display the first news article if available
+            if (articles.length > 0) {
+                loadArticle(articles[0], api);
+            }
         }
         async function loadArticle(article, api) {
             if (api === 'gnews') {
