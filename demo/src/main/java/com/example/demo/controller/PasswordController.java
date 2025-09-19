@@ -29,14 +29,24 @@ public class PasswordController {
     }
 
     @PostMapping("/reset")
-    public String resetPassword(@RequestParam String token, @RequestParam String newPassword) {
-        User dbUser = userService.findByResetToken(token);
+    public String resetPassword(@RequestBody ResetRequest request) {
+        User dbUser = userService.findByResetToken(request.getToken());
         if (dbUser == null) {
             return "Invalid token";
         }
-        dbUser.setPassword(newPassword);
+        dbUser.setPassword(request.getNewPassword());
         dbUser.setResetToken(null);
         userService.save(dbUser);
         return "Password reset successful";
+    }
+
+    public static class ResetRequest {
+        private String token;
+        private String newPassword;
+
+        public String getToken() { return token; }
+        public void setToken(String token) { this.token = token; }
+        public String getNewPassword() { return newPassword; }
+        public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
     }
 }

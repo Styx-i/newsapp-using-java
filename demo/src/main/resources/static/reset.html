@@ -25,8 +25,15 @@
         document.getElementById('resetForm').onsubmit = async function(e) {
             e.preventDefault();
             const newPassword = this.newPassword.value;
-            const res = await fetch(`/api/password/reset?token=${token}&newPassword=${encodeURIComponent(newPassword)}`, {
-                method: 'POST'
+            const res = await fetch('/api/password/reset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: token,
+                    newPassword: newPassword
+                })
             });
             const msg = await res.text();
             document.getElementById('message').textContent = msg;
