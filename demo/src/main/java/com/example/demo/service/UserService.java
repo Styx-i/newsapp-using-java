@@ -21,4 +21,7 @@ public class UserService {
     public User findByResetToken(String token) {
         return userRepository.findByResetToken(token);
     }
+    public User findByVerificationToken(String token) {
+        return userRepository.findByVerificationToken(token);
+    }
 }

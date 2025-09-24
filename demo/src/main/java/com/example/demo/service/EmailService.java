@@ -17,4 +17,11 @@ public class EmailService {
         message.setText("To reset your password, click the link: http://localhost:8080/reset?token=" + token);
         mailSender.send(message);
     }
+    public void sendVerificationEmail(String to, String link) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Verify your account");
+        message.setText("Please verify your account by clicking the link: " + link);
+        mailSender.send(message);
+    }
 }

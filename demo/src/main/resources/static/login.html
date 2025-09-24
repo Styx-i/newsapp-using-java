@@ -12,7 +12,11 @@
         <form id="loginForm">
             <input type="email" name="email" placeholder="Email" class="w-full mb-4 p-2 border rounded" required>
             <input type="password" name="password" placeholder="Password" class="w-full mb-4 p-2 border rounded" required>
-            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Login</button>
+            <div id="captchaContainer" class="mb-4 hidden flex-col items-center">
+                <img id="captchaImage" src="/captcha-image" alt="CAPTCHA" class="mb-2" style="border:1px solid #ccc;">
+                <input type="text" name="captcha" id="captcha" placeholder="Enter the text from the image" class="w-full p-2 border rounded" required>
+            </div>
+            <button type="button" id="showCaptchaBtn" class="w-full bg-blue-500 text-white py-2 rounded">Login</button>
         </form>
         <div class="flex justify-between mt-4">
             <a href="register.html" id="showRegister" class="text-blue-500">Create Account</a>
@@ -48,15 +52,29 @@
         `;
         document.head.appendChild(style);
 
+        // Show CAPTCHA on Login button click
+        document.getElementById('showCaptchaBtn').onclick = function() {
+            document.getElementById('captchaContainer').classList.remove('hidden');
+            document.getElementById('showCaptchaBtn').type = 'submit';
+            document.getElementById('showCaptchaBtn').textContent = 'Submit';
+        };
         // AJAX login
         document.getElementById('loginForm').onsubmit = async function(e) {
+            if (document.getElementById('captchaContainer').classList.contains('hidden')) {
+                e.preventDefault();
+                document.getElementById('captchaContainer').classList.remove('hidden');
+                document.getElementById('showCaptchaBtn').type = 'submit';
+                document.getElementById('showCaptchaBtn').textContent = 'Submit';
+                return;
+            }
             e.preventDefault();
             const email = this.email.value;
             const password = this.password.value;
+            const captcha = this.captcha.value;
             const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({email, password})
+                body: JSON.stringify({email, password, captcha})
             });
             const msg = await res.text();
             document.getElementById('message').textContent = msg;
@@ -69,6 +87,9 @@
                 setTimeout(() => {
                     window.location.href = '/homepage.html';
                 }, 2000);
+            } else {
+                // Refresh captcha image on error
+                document.getElementById('captchaImage').src = '/captcha-image?' + new Date().getTime();
             }
         };
         // Show register/forgot forms (to be implemented)
